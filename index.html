@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>組込みシステム開発における生成AI活用 | 夢・アーキテクティング工房</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0a0e1a;
+  --dark:  #0f1628;
+  --panel: #141c30;
+  --card:  #1a2340;
+  --line:  #1f2d4a;
+  --amber: #f59e0b;
+  --amber2:#fcd34d;
+  --blue:  #38bdf8;
+  --cyan:  #06b6d4;
+  --green: #22c55e;
+  --red:   #ef4444;
+  --text:  #e8edf5;
+  --muted: #6b7a9a;
+  --mono:  'Share Tech Mono', monospace;
+  --head:  'Rajdhani', 'Noto Sans JP', sans-serif;
+  --body:  'Noto Sans JP', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #050810; font-family: var(--body); }
+
+/* ── SLIDE SYSTEM ── */
+.deck { width: 100%; }
+
+.slide {
+  width: 297mm;
+  height: 210mm;
+  position: relative;
+  overflow: hidden;
+  background: var(--dark);
+  margin: 0 auto 4px;
+  display: flex;
+  flex-direction: column;
+  page-break-after: always;
+}
+
+/* Grid overlay */
+.slide::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(56,189,248,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* ── CIRCUIT ACCENT ── */
+.circuit-line {
+  position: absolute;
+  background: var(--amber);
+  opacity: .15;
+}
+.circuit-dot {
+  position: absolute;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  opacity: .4;
+}
+
+/* ── SLIDE NUMBER ── */
+.slide-num {
+  position: absolute;
+  bottom: 8px; right: 16px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+
+/* ── LOGO MARK ── */
+.logo-mark {
+  position: absolute;
+  top: 12px; right: 18px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--amber) 0%, var(--cyan) 60%, transparent 100%);
+  position: absolute;
+  top: 0; left: 0; right: 0;
+}
+
+/* ── SECTION TAG ── */
+.section-tag {
+  display: inline-block;
+  background: rgba(245,158,11,.12);
+  border: 1px solid rgba(245,158,11,.3);
+  border-left: 3px solid var(--amber);
+  padding: 2px 10px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--amber);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+/* ── SLIDE 1: TITLE ── */
+.s-title {
+  background: var(--navy);
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 0 0 22mm;
+}
+.s-title .accent-block {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 42%;
+  background: linear-gradient(135deg, rgba(245,158,11,.08) 0%, rgba(6,182,212,.06) 100%);
+  border-left: 1px solid rgba(245,158,11,.15);
+}
+.s-title h1 {
+  font-family: var(--head);
+  font-size: 38px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+  letter-spacing: 1px;
+  max-width: 58%;
+  margin-bottom: 10px;
+}
+.s-title h1 em {
+  color: var(--amber);
+  font-style: normal;
+}
+.s-title .subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 55%;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.s-title .presenter {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--amber);
+  letter-spacing: 2px;
+}
+.s-title .big-stat {
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+.s-title .big-stat .num {
+  font-family: var(--head);
+  font-size: 88px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  opacity: .9;
+}
+.s-title .big-stat .unit {
+  font-family: var(--head);
+  font-size: 22px;
+  color: var(--amber2);
+  letter-spacing: 2px;
+}
+.s-title .big-stat .label {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+/* ── SLIDE LAYOUT: TWO COL ── */
+.s-body {
+  padding: 14mm 14mm 10mm 14mm;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.s-body h2 {
+  font-family: var(--head);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+.s-body h2 em { color: var(--amber); font-style: normal; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; flex: 1; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; flex: 1; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px 14px;
+  position: relative;
+}
+.card.amber-border { border-top: 2px solid var(--amber); }
+.card.blue-border  { border-top: 2px solid var(--blue); }
+.card.green-border { border-top: 2px solid var(--green); }
+.card.red-border   { border-top: 2px solid var(--red); }
+
+.card-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.card h3 {
+  font-family: var(--head);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.card p {
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.card .big-num {
+  font-family: var(--head);
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--amber);
+  line-height: 1;
+  margin: 4px 0;
+}
+.card .big-num span { font-size: 16px; color: var(--amber2); }
+
+/* ── TABLE ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+.data-table th {
+  background: rgba(245,158,11,.12);
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(245,158,11,.2);
+}
+.data-table td {
+  padding: 5px 10px;
+  color: var(--text);
+  border-bottom: 1px solid var(--line);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr.total td {
+  background: rgba(245,158,11,.1);
+  color: var(--amber2);
+  font-weight: 700;
+  font-size: 11px;
+}
+.data-table td.ratio {
+  font-family: var(--head);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--amber);
+  text-align: center;
+}
+.data-table td.good { color: var(--green); }
+.data-table td.center { text-align: center; }
+
+/* ── BADGE ── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin: 1px;
+}
+.badge-amber { background: rgba(245,158,11,.15); color: var(--amber); border: 1px solid rgba(245,158,11,.3); }
+.badge-blue  { background: rgba(56,189,248,.12); color: var(--blue);  border: 1px solid rgba(56,189,248,.25); }
+.badge-green { background: rgba(34,197,94,.12);  color: var(--green); border: 1px solid rgba(34,197,94,.25); }
+.badge-red   { background: rgba(239,68,68,.12);  color: var(--red);   border: 1px solid rgba(239,68,68,.25); }
+
+/* ── BULLET ITEMS ── */
+.bullets { list-style: none; }
+.bullets li {
+  font-size: 10.5px;
+  color: var(--muted);
+  padding: 3px 0 3px 14px;
+  position: relative;
+  line-height: 1.5;
+}
+.bullets li::before {
+  content: '▸';
+  position: absolute;
+  left: 0;
+  color: var(--amber);
+  font-size: 8px;
+  top: 4px;
+}
+.bullets li strong { color: var(--text); }
+
+/* ── HIGHLIGHT BOX ── */
+.highlight-box {
+  background: linear-gradient(135deg, rgba(245,158,11,.1) 0%, rgba(6,182,212,.06) 100%);
+  border: 1px solid rgba(245,158,11,.25);
+  border-left: 3px solid var(--amber);
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  margin: 6px 0;
+}
+.highlight-box p {
+  font-size: 11px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.highlight-box p em { color: var(--amber); font-style: normal; font-weight: 700; }
+
+/* ── VS BAR ── */
+.vs-bar { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 10px; }
+.vs-label { width: 70px; color: var(--muted); font-size: 9px; text-align: right; flex-shrink: 0; }
+.vs-track { flex: 1; height: 10px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.vs-fill-manual { height: 100%; background: rgba(107,122,154,.5); border-radius: 2px; }
+.vs-fill-ai     { height: 100%; background: linear-gradient(90deg, var(--amber), var(--cyan)); border-radius: 2px; }
+.vs-val { width: 32px; font-family: var(--mono); font-size: 9px; color: var(--amber); }
+
+/* ── ICEBERG SPECIAL ── */
+.iceberg-wrap { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; }
+.iceberg-ocean { position: absolute; bottom: 0; left: 0; right: 0; height: 62%; background: linear-gradient(180deg, rgba(6,182,212,.08) 0%, rgba(6,182,212,.18) 100%); border-top: 2px dashed rgba(56,189,248,.25); }
+.iceberg-above { position: absolute; bottom: 62%; left: 50%; transform: translateX(-50%); width: 180px; }
+.iceberg-below { position: absolute; top: 40%; left: 50%; transform: translateX(-50%); width: 320px; }
+.iceberg-tip {
+  background: linear-gradient(135deg, rgba(245,158,11,.25), rgba(245,158,11,.1));
+  border: 1px solid rgba(245,158,11,.4);
+  padding: 10px 20px;
+  text-align: center;
+  clip-path: polygon(20% 100%, 0% 0%, 100% 0%, 80% 100%);
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iceberg-body {
+  background: linear-gradient(135deg, rgba(6,182,212,.12), rgba(6,182,212,.04));
+  border: 1px solid rgba(6,182,212,.2);
+  border-radius: 4px;
+  padding: 14px 18px;
+  text-align: center;
+}
+
+/* ── FLOW STEPS ── */
+.flow-steps { display: flex; align-items: flex-start; gap: 0; flex: 1; }
+.flow-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.flow-step::after {
+  content: '▶';
+  position: absolute;
+  right: -8px;
+  top: 22px;
+  color: var(--amber);
+  font-size: 10px;
+  opacity: .5;
+}
+.flow-step:last-child::after { display: none; }
+.flow-node {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--amber);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--head);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--amber);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.flow-label {
+  font-size: 9px;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.4;
+  max-width: 60px;
+}
+
+/* ── QUOTE BOX ── */
+.quote-box {
+  background: var(--navy);
+  border-left: 4px solid var(--amber);
+  padding: 12px 18px;
+  position: relative;
+  flex: 1;
+}
+.quote-box::before {
+  content: '"';
+  font-family: serif;
+  font-size: 60px;
+  color: rgba(245,158,11,.15);
+  position: absolute;
+  top: -8px; left: 8px;
+  line-height: 1;
+}
+.quote-box p {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.quote-box p strong { color: var(--amber); }
+.quote-box .attribution {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  margin-top: 8px;
+  text-align: right;
+}
+
+/* ── ROLE SPLIT ── */
+.role-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 1fr;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+.role-ai   { font-size: 10px; color: var(--cyan);  text-align: right; }
+.role-vs   { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center; }
+.role-human{ font-size: 10px; color: var(--amber); }
+
+/* PRINT */
+@media print {
+  body { background: white; }
+  .slide { page-break-after: always; margin: 0; }
+}
+
+/* NAVIGATION */
+.nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  background: rgba(10,14,26,.9);
+  padding: 8px 14px;
+  border-radius: 30px;
+  border: 1px solid var(--line);
+}
+.nav button {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 6px 16px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  border-radius: 3px;
+  transition: all .2s;
+}
+.nav button:hover { border-color: var(--amber); color: var(--amber); }
+.nav .page-info { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 2; padding: 0 8px; }
+
+.slide { display: none; }
+.slide.active { display: flex; }
+@media print { .slide { display: flex !important; } .nav { display: none; } }
+</style>
+</head>
+<body>
+<div class="deck">
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: TITLE -->
+<!-- ============================================================ -->
+<div class="slide s-title active" id="s1">
+  <div class="top-bar"></div>
+  <div class="accent-block"></div>
+
+  <div class="circuit-line" style="width:2px;height:60%;top:20%;left:58%;opacity:.08"></div>
+  <div class="circuit-line" style="height:2px;width:30%;top:35%;left:60%;opacity:.06"></div>
+  <div class="circuit-dot" style="top:35%;left:90%;"></div>
+  <div class="circuit-dot" style="top:65%;left:80%;"></div>
+
+  <div class="section-tag" style="position:absolute;top:20px;left:22mm;">CONFIDENTIAL PROPOSAL  ·  2026.03</div>
+
+  <div style="margin-top:auto;margin-bottom:auto;">
+    <h1>組込みシステム開発に<br><em>生成AIを活用</em>する<br>次世代の設計手法</h1>
+    <p class="subtitle">
+      V字モデル全工程でAI共創を実証。<br>
+      生産性 5.8倍・品質向上・ドキュメント完全自動化。<br>
+      GOMA-1015型話題沸騰ポットを題材とした実践的エビデンス。
+    </p>
+    <div class="presenter">
+      夢・アーキテクティング工房　｜　片山 立（Ryu Katayama）<br>
+      組込みシステム開発コンサルタント　｜　SS2026論文投稿予定
+    </div>
+  </div>
+
+  <div class="big-stat">
+    <div class="num">5.8<span style="font-size:36px">倍</span></div>
+    <div class="unit">生産性向上</div>
+    <div class="label" style="margin-top:6px;">全工程平均　人手比</div>
+    <div style="margin-top:14px;font-family:var(--mono);font-size:9px;color:var(--muted);">
+      人手 130日 → AI共創 22日
+    </div>
+  </div>
+
+  <div class="logo-mark">夢・アーキテクティング工房</div>
+  <div class="slide-num">01 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: AGENDA -->
+<!-- ============================================================ -->
+<div class="slide" id="s2">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">AGENDA</div>
+    <h2>本日のご提案　<em>30分</em></h2>
+
+    <div class="two-col" style="gap:16px;margin-top:4px;">
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:2px;margin-bottom:10px;">PART 1 ─ 課題と解決策</div>
+        <div class="card amber-border" style="margin-bottom:8px;">
+          <div class="card-label">01 ─ 5 MIN</div>
+          <h3>御社が直面する課題</h3>
+          <p>組込み開発の工数・属人化・品質の三重苦</p>
+        </div>
+        <div class="card amber-border" style="margin-bottom:8px;">
+          <div class="card-label">02 ─ 8 MIN</div>
+          <h3>生成AI共創の全体像</h3>
+          <p>V字モデルのどの工程に、どう活用するか</p>
+        </div>
+        <div class="card amber-border">
+          <div class="card-label">03 ─ 5 MIN</div>
+          <h3>実証エビデンス</h3>
+          <p>GOMA-1015実践事例・定量的生産性データ</p>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px;">PART 2 ─ 価値提案</div>
+        <div class="card blue-border" style="margin-bottom:8px;">
+          <div class="card-label">04 ─ 5 MIN</div>
+          <h3>人間とAIの役割分担</h3>
+          <p>AIが生成し、ベテランが判断する非対称協働</p>
+        </div>
+        <div class="card blue-border" style="margin-bottom:8px;">
+          <div class="card-label">05 ─ 5 MIN</div>
+          <h3>導入ロードマップ</h3>
+          <p>3フェーズ段階導入・ROI試算</p>
+        </div>
+        <div class="card green-border">
+          <div class="card-label">06 ─ 2 MIN</div>
+          <h3>コンサルティング提案</h3>
+          <p>次のステップと期待できる成果</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">02 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: PROBLEM -->
+<!-- ============================================================ -->
+<div class="slide" id="s3">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">PROBLEM</div>
+    <h2>組込み開発が抱える<em>三重苦</em></h2>
+
+    <div class="three-col">
+      <div class="card red-border">
+        <div class="card-label">PROBLEM 01</div>
+        <div class="big-num">60<span>%</span></div>
+        <h3 style="color:var(--red);">工数の無駄</h3>
+        <p>設計ドキュメント作成・コード変換・テスト仕様導出など、「考えること」より「書くこと」に費やす時間が全体の6割超という現場の実態。</p>
+      </div>
+      <div class="card red-border">
+        <div class="card-label">PROBLEM 02</div>
+        <div class="big-num" style="color:var(--red);">∞</div>
+        <h3 style="color:var(--red);">属人化リスク</h3>
+        <p>熟練エンジニアの判断根拠がドキュメントに残らない。担当者交代・退職で設計知識が消滅。技術継承に数年を要する構造的問題。</p>
+      </div>
+      <div class="card red-border">
+        <div class="card-label">PROBLEM 03</div>
+        <div class="big-num" style="color:var(--red);">後</div>
+        <h3 style="color:var(--red);">品質確認の遅延</h3>
+        <p>設計ミスの発見がレビュー時・テスト時・最悪は出荷後。組込みは後工程の修正コストが最も高い業種。早期発見が品質の要。</p>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:10px;">
+      <p>これらの課題は、<em>構造化モデリング + 生成AI</em> の組み合わせにより、根本から解決できます。<br>
+      「書くこと」をAIに任せ、エンジニアは「判断すること」に集中できる環境を実現します。</p>
+    </div>
+  </div>
+  <div class="slide-num">03 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: V字モデル全体像 -->
+<!-- ============================================================ -->
+<div class="slide" id="s4">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">SOLUTION OVERVIEW</div>
+    <h2>V字モデル<em>全工程</em>をAI共創でカバー</h2>
+
+    <div style="flex:1;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+      <!-- Left side of V -->
+      <div style="display:grid;grid-template-columns:2fr 2fr 1fr;gap:6px;">
+        <div class="card amber-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 1 ─ 5.0x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">要求モデリング</h3>
+              <p style="font-size:9px;">イベントリスト・非機能要件・タイミング仕様・DD</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--amber);font-weight:700;">5x</div>
+          </div>
+        </div>
+        <div class="card amber-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 2 ─ 5.0x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">分析モデリング</h3>
+              <p style="font-size:9px;">DFD・CFD・CSPEC・PSPEC</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--amber);font-weight:700;">5x</div>
+          </div>
+        </div>
+        <div class="card amber-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 3 ─ 5.0x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">設計</h3>
+              <p style="font-size:9px;">SC・モジュール仕様</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--amber);font-weight:700;">5x</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div style="text-align:center;font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;">
+        ↓ &nbsp; 設計成果物が そのままテスト根拠になる ─ 完全トレーサビリティ &nbsp; ↓
+      </div>
+
+      <!-- Right side of V -->
+      <div style="display:grid;grid-template-columns:1fr 2fr 2fr;gap:6px;">
+        <div class="card blue-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 4 ─ 6.3x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">C実装</h3>
+              <p style="font-size:9px;">ANSI C 34ファイル</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--cyan);font-weight:700;">6.3x</div>
+          </div>
+        </div>
+        <div class="card blue-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 5 ─ 7.5x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">テスト設計</h3>
+              <p style="font-size:9px;">仕様ベーステスト・トレーサビリティ</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--cyan);font-weight:700;">7.5x</div>
+          </div>
+        </div>
+        <div class="card green-border" style="padding:8px 12px;">
+          <div class="card-label">PHASE 6 ─ 10x</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <h3 style="font-size:12px;">ドキュメント</h3>
+              <p style="font-size:9px;">設計記録・成果物自動生成</p>
+            </div>
+            <div style="font-family:var(--head);font-size:24px;color:var(--green);font-weight:700;">10x</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom total -->
+      <div style="background:linear-gradient(90deg,rgba(245,158,11,.12),rgba(6,182,212,.08));border:1px solid rgba(245,158,11,.25);border-radius:4px;padding:10px 18px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);">TOTAL PRODUCTIVITY GAIN　人手130日 → AI共創22日</div>
+        <div style="font-family:var(--head);font-size:32px;font-weight:700;color:var(--amber);">5.8<span style="font-size:16px;color:var(--amber2);">倍</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">04 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: EVIDENCE - GOMA1015 -->
+<!-- ============================================================ -->
+<div class="slide" id="s5">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">EVIDENCE</div>
+    <h2>実証事例：<em>GOMA-1015</em>型話題沸騰ポット</h2>
+
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:8px;background:var(--navy);">
+          <div class="card-label">CASE STUDY</div>
+          <h3>何を作ったのか</h3>
+          <ul class="bullets" style="margin-top:4px;">
+            <li><strong>SESSAME WG2要求仕様書</strong>（業界標準教材）を題材</li>
+            <li>要求→分析→設計→Python実装→C実装→テストの<strong>全工程</strong></li>
+            <li>ターゲット：<strong>STM32F103C8T6</strong>（ARM Cortex-M3・72MHz）</li>
+            <li>メインループ方式（<strong>ポーリング・1msec基本周期</strong>）</li>
+            <li>ジュールの法則による<strong>物理モデルシミュレータ</strong>を構築</li>
+          </ul>
+        </div>
+        <div class="card amber-border">
+          <div class="card-label">DELIVERABLES ─ AI共創で生成</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;">
+            <span class="badge badge-amber">イベントリスト15件</span>
+            <span class="badge badge-amber">PSPEC 17件</span>
+            <span class="badge badge-amber">CSPEC STD 6状態</span>
+            <span class="badge badge-blue">Pythonファイル22件</span>
+            <span class="badge badge-blue">ANSIcファイル34件</span>
+            <span class="badge badge-green">シナリオテスト17件 ✅</span>
+            <span class="badge badge-green">Webシミュレータ</span>
+            <span class="badge badge-amber">モジュール仕様書36件</span>
+            <span class="badge badge-blue">スケジュールテーブル</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="card green-border" style="text-align:center;padding:10px;">
+            <div class="card-label">SCENARIO TESTS</div>
+            <div style="font-family:var(--head);font-size:36px;font-weight:700;color:var(--green);line-height:1;">17/17</div>
+            <div style="font-size:9px;color:var(--muted);">全件PASS（Python・C両方）</div>
+          </div>
+          <div class="card amber-border" style="text-align:center;padding:10px;">
+            <div class="card-label">TOTAL FILES</div>
+            <div style="font-family:var(--head);font-size:36px;font-weight:700;color:var(--amber);line-height:1;">56+</div>
+            <div style="font-size:9px;color:var(--muted);">Python 22 + C 34ファイル</div>
+          </div>
+        </div>
+        <div class="card blue-border">
+          <div class="card-label">KEY ACHIEVEMENTS</div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li><strong>MILS→SILS</strong>：Python設計検証→C実装を系統的に変換</li>
+            <li><strong>コンパイラによるバグ検出</strong>：LLM生成コードのヘッダ漏れを即座に発見</li>
+            <li><strong>Webシミュレータ</strong>：実機なしにブラウザでPoT動作を検証</li>
+            <li><strong>完全なトレーサビリティ</strong>：テスト根拠6種類を記録</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">05 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: PRODUCTIVITY DATA -->
+<!-- ============================================================ -->
+<div class="slide" id="s6">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">QUANTITATIVE DATA</div>
+    <h2>工程別<em>生産性比較</em>データ</h2>
+
+    <div style="flex:1;overflow:hidden;margin-top:6px;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:22%">工程</th>
+            <th style="width:26%">主な成果物</th>
+            <th style="width:10%" class="center">人手（日）</th>
+            <th style="width:10%" class="center">AI共創（日）</th>
+            <th style="width:8%" class="center">倍率</th>
+            <th style="width:24%">高効果の核心</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-amber">要求モデリング</span></td>
+            <td style="font-size:9px;">イベントリスト・NFR・タイミング・DD</td>
+            <td class="center" style="color:var(--muted);">15</td>
+            <td class="center good">3</td>
+            <td class="ratio">5x</td>
+            <td style="font-size:9px;">骨格の高速生成・システム境界の見落とし補正</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-amber">分析モデリング</span></td>
+            <td style="font-size:9px;">DFD・CFD・CSPEC・PSPEC 17件</td>
+            <td class="center" style="color:var(--muted);">20</td>
+            <td class="center good">4</td>
+            <td class="ratio">5x</td>
+            <td style="font-size:9px;">WHAT/HOW区別の徹底指導・安全性判断</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-amber">設計モデリング</span></td>
+            <td style="font-size:9px;">SC 39モジュール・仕様書36件</td>
+            <td class="center" style="color:var(--muted);">25</td>
+            <td class="center good">5</td>
+            <td class="ratio">5x</td>
+            <td style="font-size:9px;">仕様値→設計値の安全マージン修正（×10）</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">Python実装</span></td>
+            <td style="font-size:9px;">22ファイル・シミュレータ・Flask UI</td>
+            <td class="center" style="color:var(--muted);">20</td>
+            <td class="center good">3</td>
+            <td class="ratio">6.7x</td>
+            <td style="font-size:9px;">メインループ方式×スタブ設計で即テスト可能</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">C言語実装</span></td>
+            <td style="font-size:9px;">34ファイル・スタブ設計・ビルド切替</td>
+            <td class="center" style="color:var(--muted);">25</td>
+            <td class="center good">4</td>
+            <td class="ratio">6.3x</td>
+            <td style="font-size:9px;">Python→C系統的変換・コンパイラ静的解析</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-blue">テスト設計</span></td>
+            <td style="font-size:9px;">17アサート・トレーサビリティMTX</td>
+            <td class="center" style="color:var(--muted);">15</td>
+            <td class="center good">2</td>
+            <td class="ratio">7.5x</td>
+            <td style="font-size:9px;">仕様ベーステスト自動導出・完全記録</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-green">ドキュメント</span></td>
+            <td style="font-size:9px;">MD・Excel・HTML・Word各種</td>
+            <td class="center" style="color:var(--muted);">10</td>
+            <td class="center good">1</td>
+            <td class="ratio">10x</td>
+            <td style="font-size:9px;">設計判断の根拠・経緯をセッション都度記録</td>
+          </tr>
+          <tr class="total">
+            <td><strong>合　計</strong></td>
+            <td><strong>全成果物</strong></td>
+            <td class="center"><strong>130日</strong></td>
+            <td class="center" style="color:var(--green);"><strong>22日</strong></td>
+            <td class="ratio" style="font-size:20px;color:var(--amber);">5.8x</td>
+            <td style="font-size:9px;color:var(--muted);">PoC品質レベル・STM32CubeIDE移植前</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="slide-num">06 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: AI vs HUMAN ROLES -->
+<!-- ============================================================ -->
+<div class="slide" id="s7">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">ROLE DESIGN</div>
+    <h2>人間とAIの<em>役割分担</em>── これが品質の核心</h2>
+
+    <div class="two-col" style="gap:14px;">
+      <div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--cyan);letter-spacing:3px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--line);">AI が担う ─ 速く広く正確に</div>
+        <ul class="bullets">
+          <li><strong>成果物の骨格高速生成</strong>：イベントリスト・PSPEC・コード初期版</li>
+          <li><strong>系統的なコード変換</strong>：Python→CのパターンマッチングをAIが主導</li>
+          <li><strong>テスト仕様の導出</strong>：仕様書から自動的にテストケースを生成</li>
+          <li><strong>ドキュメント完全自動化</strong>：設計判断の根拠・経緯を即時記録</li>
+          <li><strong>KPT・振り返り支援</strong>：問題点を整理し次工程の品質を向上</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:8px;color:var(--amber);letter-spacing:3px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--line);">ベテランエンジニアが担う ─ 判断・知識・経験</div>
+        <ul class="bullets">
+          <li><strong>安全マージンの設定</strong>：「10msec仕様値→1msec設計値」の修正判断</li>
+          <li><strong>システム境界の確定</strong>：LLMが見落とす「電源接続イベント」の補足</li>
+          <li><strong>WHAT/HOW区別の徹底</strong>：設計とは「何を提供するか」であって「どう動かすか」ではない</li>
+          <li><strong>安全性トレードオフ判断</strong>：A案/B案の選択根拠を形式知化</li>
+          <li><strong>全成果物の承認</strong>：LLM提案は必ず独立した判断でレビュー</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:10px;">
+      <p>
+        <em>AIはベテランを「代替」しません。ベテランの判断を「最大限に増幅」します。</em><br>
+        この非対称な協働設計こそが、生産性向上と品質担保を両立する鍵です。<br>
+        ─── そして、この「役割設計の方法論」が、コンサルティングの中核にあります。
+      </p>
+    </div>
+  </div>
+  <div class="slide-num">07 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: ICEBERG - THE HOOK -->
+<!-- ============================================================ -->
+<div class="slide" id="s8">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">THE REAL VALUE</div>
+    <h2>今日お見せできるのは、<em>氷山の一角</em></h2>
+
+    <div style="flex:1;display:flex;gap:16px;margin-top:8px;">
+      <!-- Iceberg visual -->
+      <div style="width:240px;flex-shrink:0;position:relative;">
+        <!-- Water line -->
+        <div style="position:absolute;top:38%;left:0;right:0;height:2px;background:rgba(56,189,248,.3);border-top:1px dashed rgba(56,189,248,.3);">
+          <span style="font-family:var(--mono);font-size:7px;color:var(--cyan);position:absolute;right:4px;top:-8px;">WATER LINE</span>
+        </div>
+        <!-- Ocean bg -->
+        <div style="position:absolute;top:38%;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(6,182,212,.06) 0%,rgba(6,182,212,.15) 100%);border-radius:0 0 8px 8px;"></div>
+
+        <!-- Above water -->
+        <div style="position:absolute;top:6%;left:50%;transform:translateX(-50%);width:120px;text-align:center;">
+          <div style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:4px 4px 0 0;padding:10px 6px;clip-path:polygon(15% 100%,0 0%,100% 0%,85% 100%);">
+            <div style="font-size:9px;color:var(--amber);font-weight:700;line-height:1.4;">本日の<br>プレゼン内容</div>
+          </div>
+        </div>
+
+        <!-- Below water -->
+        <div style="position:absolute;top:50%;left:50%;transform:translateX(-50%);width:200px;text-align:center;">
+          <div style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:4px;padding:16px 12px;">
+            <div style="font-size:9px;color:var(--blue);line-height:1.6;">
+              コンサルティング契約後に<br>アクセスできる知識体系
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: what's underwater -->
+      <div style="flex:1;">
+        <div style="margin-bottom:8px;">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--amber);letter-spacing:2px;margin-bottom:4px;">▲ 本日お伝えできること（氷山の上）</div>
+          <div style="font-size:10px;color:var(--muted);line-height:1.6;background:rgba(245,158,11,.05);padding:6px 10px;border-radius:3px;">
+            生産性5.8倍の実績データ ／ V字モデル活用の全体像 ／ GOMA-1015実証事例の概要
+          </div>
+        </div>
+
+        <div style="border-top:1px dashed rgba(56,189,248,.25);padding-top:8px;">
+          <div style="font-family:var(--mono);font-size:8px;color:var(--cyan);letter-spacing:2px;margin-bottom:6px;">▼ コンサルティングでご提供できる知識（氷山の下）</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+            <div class="card blue-border" style="padding:7px 10px;">
+              <div style="font-size:9px;color:var(--text);font-weight:700;margin-bottom:3px;">🔑 LLMの失敗パターン集</div>
+              <div style="font-size:8.5px;color:var(--muted);">WHAT/HOW混同・システム境界の見落とし・仕様値→設計値エラーの具体的な回避手法</div>
+            </div>
+            <div class="card blue-border" style="padding:7px 10px;">
+              <div style="font-size:9px;color:var(--text);font-weight:700;margin-bottom:3px;">🔑 プロンプト設計の体系</div>
+              <div style="font-size:8.5px;color:var(--muted);">構造化モデリングの各工程に最適化された100以上のプロンプトパターン</div>
+            </div>
+            <div class="card blue-border" style="padding:7px 10px;">
+              <div style="font-size:9px;color:var(--text);font-weight:700;margin-bottom:3px;">🔑 設計判断フレームワーク</div>
+              <div style="font-size:8.5px;color:var(--muted);">安全マージン設定・トレードオフ判断の形式知化手法。AIと人間の役割設計の詳細</div>
+            </div>
+            <div class="card blue-border" style="padding:7px 10px;">
+              <div style="font-size:9px;color:var(--text);font-weight:700;margin-bottom:3px;">🔑 御社環境への適合設計</div>
+              <div style="font-size:8.5px;color:var(--muted);">御社のターゲットMCU・開発プロセス・スキルレベルに合わせたカスタマイズ手法</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">08 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: QUALITY PROOF -->
+<!-- ============================================================ -->
+<div class="slide" id="s9">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">QUALITY ASSURANCE</div>
+    <h2><em>品質は担保</em>されているか ── 6つの指標で検証</h2>
+
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+        <div class="card green-border" style="padding:10px 12px;">
+          <div class="card-label">TRACEABILITY</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;margin:4px 0;">
+            <span style="font-family:var(--head);font-size:32px;color:var(--green);font-weight:700;">100</span>
+            <span style="font-size:12px;color:var(--green);margin-bottom:4px;">%</span>
+          </div>
+          <p style="font-size:9px;">全テストケースが設計成果物にトレース可能。根拠6種類（イベントリスト・CSPEC・PSPEC・PAT・安全性判断・タイミング仕様）を記録</p>
+        </div>
+        <div class="card green-border" style="padding:10px 12px;">
+          <div class="card-label">TEST PASS RATE</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;margin:4px 0;">
+            <span style="font-family:var(--head);font-size:32px;color:var(--green);font-weight:700;">17/17</span>
+          </div>
+          <p style="font-size:9px;">Python版・C版の両方で全シナリオテストがパス。MILS→SILSの設計一貫性を実証。</p>
+        </div>
+        <div class="card green-border" style="padding:10px 12px;">
+          <div class="card-label">COMPILE ERRORS</div>
+          <div style="display:flex;align-items:flex-end;gap:6px;margin:4px 0;">
+            <span style="font-family:var(--head);font-size:32px;color:var(--green);font-weight:700;">0</span>
+            <span style="font-size:12px;color:var(--green);margin-bottom:4px;">件</span>
+          </div>
+          <p style="font-size:9px;">gcc -Wall -Wextra -Wpedantic で全16ファイルが警告ゼロでコンパイル。静的解析でバグを即座に検出・修正。</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:6px;">
+        <div class="card amber-border" style="padding:10px 12px;">
+          <div class="card-label">WCET ANALYSIS</div>
+          <div style="font-size:10px;color:var(--text);margin:4px 0;">最悪フレーム</div>
+          <div style="display:flex;align-items:baseline;gap:4px;">
+            <span style="font-family:var(--head);font-size:28px;color:var(--amber);font-weight:700;">950</span>
+            <span style="font-size:11px;color:var(--amber);">μsec</span>
+            <span style="font-size:10px;color:var(--green);margin-left:4px;">≤ 1000μsec ✅</span>
+          </div>
+          <p style="font-size:9px;margin-top:4px;">スケジュールテーブル検証済み。各フレームに50μsecの安全マージンを確保。</p>
+        </div>
+        <div class="card" style="padding:10px 12px;">
+          <div class="card-label">IMPORTANT CAVEAT ─ 誠実な開示</div>
+          <p style="font-size:10px;color:var(--text);line-height:1.6;">
+            本実証はPoC（試作品）品質レベルです。<br>
+            <span style="color:var(--amber);">✅ 完了：</span>ホストPCでのSILS（ソフトウェアインザループ）<br>
+            <span style="color:var(--muted);">⏳ 次工程：</span>STM32CubeIDE・実機HILS・WCET実測<br>
+            <span style="color:var(--muted);">⏳ 次工程：</span>IEC 61508等機能安全規格への適合
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">09 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: ROADMAP -->
+<!-- ============================================================ -->
+<div class="slide" id="s10">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">ROADMAP</div>
+    <h2>御社への<em>段階的導入</em>ロードマップ</h2>
+
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px;margin-top:6px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;">
+        <div class="card amber-border" style="position:relative;">
+          <div style="position:absolute;top:10px;right:12px;font-family:var(--head);font-size:44px;font-weight:700;color:rgba(245,158,11,.08);line-height:1;">1</div>
+          <div class="card-label">PHASE 1 ─ 1〜2ヶ月</div>
+          <h3>ドキュメント生成<br>から始める</h3>
+          <div style="margin:6px 0;"><span style="font-family:var(--head);font-size:24px;color:var(--amber);font-weight:700;">10x</span><span style="font-size:9px;color:var(--muted);"> 効果・最低リスク</span></div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>設計記録・議事録の<strong>自動生成</strong></li>
+            <li>仕様書からの要件整理</li>
+            <li>Skillファイルの整備</li>
+            <li>AI活用ガイドラインの策定</li>
+          </ul>
+        </div>
+        <div class="card blue-border" style="position:relative;">
+          <div style="position:absolute;top:10px;right:12px;font-family:var(--head);font-size:44px;font-weight:700;color:rgba(56,189,248,.06);line-height:1;">2</div>
+          <div class="card-label">PHASE 2 ─ 3〜4ヶ月</div>
+          <h3>分析・設計への<br>本格適用</h3>
+          <div style="margin:6px 0;"><span style="font-family:var(--head);font-size:24px;color:var(--cyan);font-weight:700;">5x</span><span style="font-size:9px;color:var(--muted);"> 効果・中リスク</span></div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>CSPEC・PSPECの<strong>初期版生成</strong></li>
+            <li>ベテランレビュー体制の確立</li>
+            <li>失敗パターン集の整備</li>
+            <li>プロンプト設計の最適化</li>
+          </ul>
+        </div>
+        <div class="card green-border" style="position:relative;">
+          <div style="position:absolute;top:10px;right:12px;font-family:var(--head);font-size:44px;font-weight:700;color:rgba(34,197,94,.06);line-height:1;">3</div>
+          <div class="card-label">PHASE 3 ─ 5〜6ヶ月</div>
+          <h3>実装・テストへの<br>完全統合</h3>
+          <div style="margin:6px 0;"><span style="font-family:var(--head);font-size:24px;color:var(--green);font-weight:700;">6.5x</span><span style="font-size:9px;color:var(--muted);"> 効果・管理済リスク</span></div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>Python/C実装の<strong>AI支援</strong></li>
+            <li>シナリオテスト自動生成</li>
+            <li>MCPサーバーとの統合</li>
+            <li>社内展開・人材育成</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:4px;padding:8px 16px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:10px;color:var(--muted);">中規模プロジェクト（3名×6ヶ月）への完全適用時の理論削減効果</div>
+        <div style="display:flex;gap:20px;align-items:center;">
+          <div style="text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);">従来</div>
+            <div style="font-family:var(--head);font-size:18px;color:var(--muted);">435<span style="font-size:11px;">人日</span></div>
+          </div>
+          <div style="font-family:var(--head);font-size:18px;color:var(--amber);">→</div>
+          <div style="text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--green);">AI共創</div>
+            <div style="font-family:var(--head);font-size:18px;color:var(--green);">78<span style="font-size:11px;">人日</span></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-family:var(--mono);font-size:9px;color:var(--amber);">削減効果</div>
+            <div style="font-family:var(--head);font-size:22px;color:var(--amber);font-weight:700;">-357<span style="font-size:11px;">人日</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">10 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: WHY YOU NEED CONSULTING -->
+<!-- ============================================================ -->
+<div class="slide" id="s11">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">WHY CONSULTING</div>
+    <h2><em>「やってみた」</em>と <em>「成果を出す」</em> の間にある深い溝</h2>
+
+    <div class="two-col" style="gap:14px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="highlight-box">
+          <p>生成AIを「使ってみた」だけでは、生産性は上がりません。<br>
+          むしろ<em>失敗パターンを知らずに使うと</em>、設計品質が下がるリスクがあります。<br>
+          このレポートの成果は、数百回の試行錯誤と失敗から得た<em>方法論</em>に基づいています。</p>
+        </div>
+
+        <div class="card red-border" style="padding:10px 12px;">
+          <div class="card-label">TYPICAL FAILURE WITHOUT GUIDANCE</div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>LLMが生成した<strong>WHAT/HOW混在仕様</strong>をそのまま実装 → 後工程で大規模修正</li>
+            <li><strong>システム境界を見落とした</strong>まま分析モデリング → 要件漏れが後から発覚</li>
+            <li>プロンプトが最適化されておらず <strong>AI活用の効果が出ない</strong> → 「使えない」と結論</li>
+            <li>設計判断の根拠が残らず<strong>属人化が解消されない</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card amber-border" style="padding:10px 12px;">
+          <div class="card-label">WHAT CONSULTING PROVIDES</div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>御社プロジェクトに<strong>最適化されたプロンプト設計</strong>のハンズオン</li>
+            <li>構造化モデリング × AI共創の<strong>実践的なワークショップ</strong></li>
+            <li>LLMの失敗パターンと<strong>回避手法の完全移転</strong></li>
+            <li>御社エンジニアが<strong>自律的に活用できる</strong>ようになるまでの伴走支援</li>
+          </ul>
+        </div>
+        <div class="quote-box" style="flex:none;">
+          <p>「<strong>方法論を知っている</strong>エンジニアと<br>
+          知らないエンジニアでは、<br>
+          AI活用の効果に<strong>10倍以上の差</strong>が生まれます。」</p>
+          <div class="attribution">─ 本研究の定量的な知見より</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">11 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: CONSULTING PROPOSAL -->
+<!-- ============================================================ -->
+<div class="slide" id="s12">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">CONSULTING PROPOSAL</div>
+    <h2>コンサルティング<em>ご提案</em></h2>
+
+    <div class="two-col" style="gap:12px;margin-top:6px;">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card amber-border">
+          <div class="card-label">STARTER ─ まず成果を実感する</div>
+          <h3>パイロットプロジェクト支援</h3>
+          <p>御社の実際のプロジェクト（要件定義〜設計フェーズ）に同行し、AI共創の手法を実践しながら移転します。</p>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px;">
+            <span class="badge badge-amber">3ヶ月</span>
+            <span class="badge badge-amber">ハンズオン</span>
+            <span class="badge badge-amber">週1回 定例</span>
+          </div>
+        </div>
+        <div class="card blue-border">
+          <div class="card-label">FULL ─ 組織全体に展開する</div>
+          <h3>AI活用内製化支援</h3>
+          <p>プロンプト設計・ワークフロー整備・教育カリキュラム開発まで、御社が自律的にAI共創できる体制を構築します。</p>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:3px;">
+            <span class="badge badge-blue">6ヶ月</span>
+            <span class="badge badge-blue">全エンジニア</span>
+            <span class="badge badge-blue">Skill整備込み</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card green-border">
+          <div class="card-label">DELIVERABLES ─ ご提供するもの</div>
+          <ul class="bullets" style="margin-top:4px;">
+            <li>御社製品に最適化した<strong>構造化モデリング × AI活用ガイドライン</strong></li>
+            <li>工程別<strong>プロンプトテンプレート集</strong>（100以上）</li>
+            <li>LLM失敗パターンと回避手法の<strong>チェックリスト</strong></li>
+            <li>AI共創ワークフローの<strong>Skillファイル一式</strong></li>
+            <li>導入前後の<strong>生産性比較レポート</strong>（成果の可視化）</li>
+          </ul>
+        </div>
+
+        <div style="background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(6,182,212,.08));border:1px solid rgba(245,158,11,.3);border-radius:4px;padding:12px 16px;text-align:center;">
+          <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:6px;">NEXT STEP</div>
+          <div style="font-size:11px;color:var(--text);line-height:1.7;">
+            まずは<span style="color:var(--amber);font-weight:700;">無料相談（1時間）</span>から。<br>
+            御社の現状課題をお聞きし、最適なアプローチをご提案します。<br>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--cyan);">→ 今日の Q&A 後にご調整ください</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">12 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 13: CREDENTIALS -->
+<!-- ============================================================ -->
+<div class="slide" id="s13">
+  <div class="top-bar"></div>
+  <div class="s-body">
+    <div class="section-tag">CREDENTIALS</div>
+    <h2>なぜ<em>片山立</em>に依頼するのか</h2>
+
+    <div class="two-col" style="gap:14px;">
+      <div>
+        <div class="card amber-border" style="margin-bottom:8px;">
+          <div class="card-label">EXPERTISE</div>
+          <ul class="bullets">
+            <li><strong>組込みシステム開発コンサルタント</strong>として20年以上の実績</li>
+            <li><strong>構造化モデリング</strong>（SESSAME WG2テキスト）の実践的指導経験</li>
+            <li><strong>生成AI × 組込み開発</strong>の体系的研究（SS2026論文投稿予定）</li>
+            <li>STM32・ARM Cortex-M・μITRONなど<strong>実機・RTOS経験</strong>豊富</li>
+          </ul>
+        </div>
+        <div class="card blue-border">
+          <div class="card-label">UNIQUE POSITION</div>
+          <p style="font-size:10.5px;color:var(--text);line-height:1.7;">
+            「構造化モデリング」と「生成AI活用」を<strong>同時に深く理解している</strong>専門家は、日本国内でもきわめて少数です。<br><br>
+            本研究で実証した方法論は、<strong>御社のエンジニアに直接移転可能</strong>です。
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="background:var(--navy);margin-bottom:8px;">
+          <div class="card-label">RESEARCH OUTPUTS</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">
+            <span class="badge badge-amber">SS2026 経験論文</span>
+            <span class="badge badge-blue">SWEST 2026 発表予定</span>
+            <span class="badge badge-blue">SPI Japan 2026 予定</span>
+            <span class="badge badge-green">Python実装 22ファイル</span>
+            <span class="badge badge-green">ANSI C実装 34ファイル</span>
+            <span class="badge badge-green">シナリオテスト 17件✅</span>
+            <span class="badge badge-amber">Webシミュレータ構築</span>
+            <span class="badge badge-amber">生産性比較レポート</span>
+          </div>
+        </div>
+        <div class="quote-box">
+          <p>「この研究が示すのは、<strong>生成AIとの共創は組込みソフトウェア開発における次世代の設計手法</strong>である、ということです。<br>
+          御社がこの波に乗る<strong>最初の一社</strong>になることが、最大の競争優位につながります。」</p>
+          <div class="attribution">─ 片山 立 / 夢・アーキテクティング工房</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">13 / 14</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 14: Q&A -->
+<!-- ============================================================ -->
+<div class="slide" id="s14">
+  <div class="top-bar"></div>
+  <div class="s-body" style="justify-content:center;align-items:center;text-align:center;">
+
+    <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:4px;margin-bottom:16px;">Q &amp; A SESSION ─ 20 MINUTES</div>
+
+    <div style="font-family:var(--head);font-size:52px;font-weight:700;color:var(--amber);line-height:1;margin-bottom:8px;">
+      ご質問を<br>お聞かせください
+    </div>
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:24px;max-width:500px;line-height:1.7;">
+      本日お伝えしたのは、研究成果の<strong style="color:var(--text);">概要</strong>です。<br>
+      各工程の詳細・御社への適用方法・具体的な進め方については、<br>
+      <strong style="color:var(--amber);">コンサルティング契約後に全面的にご支援</strong>します。
+    </div>
+
+    <div style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;">
+      <div class="card" style="padding:14px 20px;text-align:center;min-width:140px;">
+        <div class="card-label">CONTACT</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text);margin-top:4px;">夢・アーキテクティング工房</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--amber);margin-top:2px;">片山 立</div>
+      </div>
+      <div class="card amber-border" style="padding:14px 20px;text-align:center;min-width:200px;">
+        <div class="card-label">NEXT ACTION</div>
+        <div style="font-size:10px;color:var(--text);margin-top:4px;line-height:1.6;">
+          ① 本日の Q&amp;A<br>
+          ② 無料相談（1時間）のご調整<br>
+          ③ パイロットプロジェクト開始
+        </div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;">
+      © 2026 夢・アーキテクティング工房 / 片山 立 ─ 本資料の無断転載を禁じます
+    </div>
+  </div>
+  <div class="slide-num">14 / 14</div>
+</div>
+
+</div><!-- end deck -->
+
+<!-- Navigation -->
+<div class="nav">
+  <button onclick="go(-1)">◀ 前へ</button>
+  <span class="page-info" id="pageInfo">1 / 14</span>
+  <button onclick="go(1)">次へ ▶</button>
+</div>
+
+<script>
+let cur = 1;
+const total = 14;
+
+function go(dir) {
+  const prev = document.getElementById('s' + cur);
+  if (prev) prev.classList.remove('active');
+  cur = Math.max(1, Math.min(total, cur + dir));
+  const next = document.getElementById('s' + cur);
+  if (next) next.classList.add('active');
+  document.getElementById('pageInfo').textContent = cur + ' / ' + total;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') go(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  go(-1);
+});
+</script>
+</body>
+</html>
